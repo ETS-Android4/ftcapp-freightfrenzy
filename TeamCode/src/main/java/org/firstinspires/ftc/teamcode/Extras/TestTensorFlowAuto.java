@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Extras;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -7,6 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.List;
 
@@ -20,8 +25,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
+
 @Autonomous
 public class TestTensorFlowAuto<tfod> extends OpMode {
+
+    /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
+     * the following 4 detectable objects
+     *  0: Ball,
+     *  1: Cube,
+     *  2: Duck,
+     *  3: Marker (duck location tape marker)
+     *
+     *  Two additional model assets are available which only contain a subset of the objects:
+     *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
+     *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
+     */
 
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
@@ -75,10 +93,10 @@ public class TestTensorFlowAuto<tfod> extends OpMode {
 
                     if (Duck == true) {
                         if (duckPos > 500) {
-                            telemetry.addData("posistion:", "right");
+                            telemetry.addData("position:", "right");
                             right = true;
                         } else if (duckPos < 500) {
-                            telemetry.addData("posistion:", "middle");
+                            telemetry.addData("position:", "middle");
                             middle = true;
                         } else{
                             right= false;
@@ -87,7 +105,7 @@ public class TestTensorFlowAuto<tfod> extends OpMode {
                     }
                 }
                 if (right == false && middle == false) {
-                    telemetry.addData("posistion:", "left");
+                    telemetry.addData("position:", "left");
                     left = true;
                 }
                 telemetry.update();
@@ -100,15 +118,23 @@ public class TestTensorFlowAuto<tfod> extends OpMode {
     }
 
     private void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
 
+        //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -122,8 +148,10 @@ public class TestTensorFlowAuto<tfod> extends OpMode {
 
     @Override
     public void init() {
+
         initVuforia();
         initTfod();
+
     }
 
     @Override
