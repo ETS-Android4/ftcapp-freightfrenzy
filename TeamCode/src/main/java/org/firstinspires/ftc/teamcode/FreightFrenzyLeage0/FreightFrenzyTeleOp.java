@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.FreightFrenzyLeage0;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp
+@Disabled
 public class FreightFrenzyTeleOp extends OpMode {
     private DcMotor RFMotor;
     private DcMotor LFMotor;

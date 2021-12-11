@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -40,23 +41,23 @@ public class FormulaRTeleOp extends OpMode {
 
     //DriveTrain method
     public void moveDriveTrain(){
-        if(gamepad1.left_bumper){
-            LFMotor.setPower(0.6*(gamepad1.right_stick_y));
-            LBMotor.setPower(0.6*(gamepad1.right_stick_y));
-            RFMotor.setPower(0.6*(-gamepad1.left_stick_y));
-            RBMotor.setPower(0.6*(-gamepad1.left_stick_y));
+        double vertical = 0;
+        double horizontal = 0;
+        double pivot = 0;
+        vertical = gamepad1.left_stick_y;
+        horizontal = gamepad1.left_stick_x;
+        pivot = gamepad1.right_stick_x;
 
-            telemetry.addData("joystick", gamepad1.right_stick_y);
-            telemetry.addData("joystick", gamepad1.left_stick_y);
-
-        }else {
-            LFMotor.setPower(gamepad1.right_stick_y);
-            LBMotor.setPower(gamepad1.right_stick_y);
-            RFMotor.setPower(-gamepad1.left_stick_y);
-            RBMotor.setPower(-gamepad1.left_stick_y);
-
-            telemetry.addData("joystick", gamepad1.right_stick_y);
-            telemetry.addData("joystick", gamepad1.left_stick_y);
+        if (gamepad1.left_bumper) {
+            RFMotor.setPower(0.25 * (pivot + (vertical + horizontal)));
+            RBMotor.setPower(0.25 * (pivot + (vertical - horizontal)));
+            LFMotor.setPower(0.25 * (-pivot + (vertical - horizontal)));
+            LBMotor.setPower(0.25 * (-pivot + (vertical + horizontal)));
+        } else {
+            RFMotor.setPower(pivot + (vertical + horizontal));
+            RBMotor.setPower(pivot + (vertical - horizontal));
+            LFMotor.setPower(-pivot + (vertical - horizontal));
+            LBMotor.setPower(-pivot + (vertical + horizontal));
         }
     }
 
@@ -95,6 +96,9 @@ public class FormulaRTeleOp extends OpMode {
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
         LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
+
+        RFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        RBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
     }
 
