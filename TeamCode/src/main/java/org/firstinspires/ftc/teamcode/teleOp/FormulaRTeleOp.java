@@ -23,8 +23,8 @@ public class FormulaRTeleOp extends OpMode {
     private DcMotor LFMotor;
     private DcMotor RBMotor;
     private DcMotor LBMotor;
-    private DcMotor Shooter;
-    private DcMotor intake;
+    private DcMotor Intake;
+    private Servo Arm;
 
     ElapsedTime t1 = new ElapsedTime();
     ElapsedTime t2 = new ElapsedTime();
@@ -49,10 +49,10 @@ public class FormulaRTeleOp extends OpMode {
         pivot = gamepad1.right_stick_x;
 
         if (gamepad1.left_bumper) {
-            RFMotor.setPower(0.25 * (pivot + (vertical + horizontal)));
-            RBMotor.setPower(0.25 * (pivot + (vertical - horizontal)));
-            LFMotor.setPower(0.25 * (-pivot + (vertical - horizontal)));
-            LBMotor.setPower(0.25 * (-pivot + (vertical + horizontal)));
+            RFMotor.setPower(0.4 * (pivot + (vertical + horizontal)));
+            RBMotor.setPower(0.4 * (pivot + (vertical - horizontal)));
+            LFMotor.setPower(0.4 * (-pivot + (vertical - horizontal)));
+            LBMotor.setPower(0.4 * (-pivot + (vertical + horizontal)));
         } else {
             RFMotor.setPower(pivot + (vertical + horizontal));
             RBMotor.setPower(pivot + (vertical - horizontal));
@@ -61,20 +61,37 @@ public class FormulaRTeleOp extends OpMode {
         }
     }
 
-    //Push 3 times method
-
-    //    Intake method
+    // Intake method
     public void Intake(){
-        if ((gamepad1.left_trigger) > 0.5 && t1.seconds() > 0.5) {
-            intake.setPower(1);
-        } else if((gamepad1.right_stick_button)) {
-            intake.setPower(-1);
-        } else if (gamepad1.b) {
-            intake.setPower(0);
+        if ((gamepad2.left_trigger) > 0.5 && t1.seconds() > 0.5) {
+            Intake.setPower(1);
+        } else if((gamepad2.right_stick_button)) {
+            Intake.setPower(-1);
+        } else if (gamepad2.left_stick_button) {
+            Intake.setPower(0);
         }
 
     }
 
+    // Arm method
+    public void Arm() {
+        if ((gamepad2.b)) {
+            Arm.setPosition(0.1);
+        }
+        if ((gamepad2.a)) {
+            Arm.setPosition(0.9);
+        }
+        if ((gamepad2.x)) {
+            Arm.setPosition(0.7);
+        }
+        if ((gamepad2.y)) {
+            Arm.setPosition(0.35);
+        }
+
+        telemetry.addData("Arm Position", Arm.getPosition());
+        telemetry.update();
+
+    }
 
 
     //sleep methods
@@ -96,17 +113,20 @@ public class FormulaRTeleOp extends OpMode {
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
         LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
+        Intake = hardwareMap.get(DcMotor.class, "Intake");
+        Arm = hardwareMap.get(Servo.class, "Arm");
 
-        RFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        RBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        LFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        LBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
     }
 
     @Override
     public void init_loop() {
 
-
-
+        Arm.setPosition(0.1);
+        telemetry.addData("Arm Position" , Arm.getPosition());
+        telemetry.update();
 
 
     }
@@ -120,8 +140,9 @@ public class FormulaRTeleOp extends OpMode {
     @Override
     public void loop() {
         moveDriveTrain();
-
+        Intake();
+        Arm();
+        telemetry.update();
 
     }
-
 }
