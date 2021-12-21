@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.FreightFrenzyLeage0;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -14,8 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous
-public class AutoL2 extends OpMode {
-
+@Disabled
+public class Auto extends OpMode {
     //initializing and variables
     BNO055IMU imu;
     Orientation angles;
@@ -269,10 +269,10 @@ public class AutoL2 extends OpMode {
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
 
 
-        RFMotor.setDirection(DcMotor.Direction.FORWARD);
-        LFMotor.setDirection(DcMotor.Direction.REVERSE);
-        RBMotor.setDirection(DcMotor.Direction.FORWARD);
-        LBMotor.setDirection(DcMotor.Direction.REVERSE);
+        RFMotor.setDirection(DcMotor.Direction.REVERSE);
+        LFMotor.setDirection(DcMotor.Direction.FORWARD);
+        RBMotor.setDirection(DcMotor.Direction.REVERSE);
+        LBMotor.setDirection(DcMotor.Direction.FORWARD);
 
         telemetry.addData("status", "initialized");
 
@@ -319,12 +319,11 @@ public class AutoL2 extends OpMode {
     @Override
     public void loop() {
         if (!trip1) {
-            rampUp(-one * 4, 0, 0.5, 0.3);
-            trip1 = tripLoop();
+            rampUpSide(-one * 2, 0, 0.5, 0.5);
+            trip1 = tripLoopSideways();
             telemetry.addData("trip 1", trip1);
         }
-        telemetry.update();
-    }
+        }
 
     public final void idle() {
         Thread.yield();
@@ -337,6 +336,4 @@ public class AutoL2 extends OpMode {
             Thread.currentThread().interrupt();
         }
     }
-
-
 }

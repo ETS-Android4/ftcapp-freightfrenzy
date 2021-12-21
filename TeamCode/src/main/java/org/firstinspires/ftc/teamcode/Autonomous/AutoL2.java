@@ -1,28 +1,20 @@
-package org.firstinspires.ftc.teamcode.FreightFrenzyLeage0;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.util.List;
 @Autonomous
-@Disabled
-public class Auto extends OpMode {
+public class AutoL2 extends OpMode {
+
     //initializing and variables
     BNO055IMU imu;
     Orientation angles;
@@ -276,10 +268,10 @@ public class Auto extends OpMode {
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
 
 
-        RFMotor.setDirection(DcMotor.Direction.REVERSE);
-        LFMotor.setDirection(DcMotor.Direction.FORWARD);
-        RBMotor.setDirection(DcMotor.Direction.REVERSE);
-        LBMotor.setDirection(DcMotor.Direction.FORWARD);
+        RFMotor.setDirection(DcMotor.Direction.FORWARD);
+        LFMotor.setDirection(DcMotor.Direction.REVERSE);
+        RBMotor.setDirection(DcMotor.Direction.FORWARD);
+        LBMotor.setDirection(DcMotor.Direction.REVERSE);
 
         telemetry.addData("status", "initialized");
 
@@ -326,11 +318,12 @@ public class Auto extends OpMode {
     @Override
     public void loop() {
         if (!trip1) {
-            rampUpSide(-one * 2, 0, 0.5, 0.5);
-            trip1 = tripLoopSideways();
+            rampUp(-one * 4, 0, 0.5, 0.3);
+            trip1 = tripLoop();
             telemetry.addData("trip 1", trip1);
         }
-        }
+        telemetry.update();
+    }
 
     public final void idle() {
         Thread.yield();
@@ -343,4 +336,6 @@ public class Auto extends OpMode {
             Thread.currentThread().interrupt();
         }
     }
+
+
 }
