@@ -225,14 +225,9 @@ public class FreightFrenzyAuto extends OpMode {
                             telemetry.addData("position:", "middle");
                             Middle = true;
                         } else {
-                            Right = false;
-                            Left = false;
+                            Left = true;
                         }
                     }
-                }
-                if (Right == false && Middle == false) {
-                    telemetry.addData("position:", "left");
-                    Left = true;
                 }
                 telemetry.update();
             }
@@ -261,19 +256,146 @@ public class FreightFrenzyAuto extends OpMode {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 
+    boolean tripLoopDone = false;
+    boolean EncoderPower;
+
+    boolean tripLoop() {
+        double AverageEncPower = (RFMotor.getPower() + LFMotor.getPower() + RBMotor.getPower() + LBMotor.getPower()) / 4;
+
+        if (AverageEncPower == 0) {
+            EncoderPower = false;
+        } else {
+            EncoderPower = true;
+        }
+
+        if (!tripLoopDone && EncoderPower) {
+            tripLoopDone = true;
+        }
+
+        if (tripLoopDone && !EncoderPower || tripLoopDoneSide) {
+            RFPreviousValue = RFMotor.getCurrentPosition();
+            RBPreviousValue = RBMotor.getCurrentPosition();
+            LFPreviousValue = RFMotor.getCurrentPosition();
+            LBPreviousValue = RFMotor.getCurrentPosition();
+            tripLoopDoneSide = false;
+            telemetry.addData("tripLoop return:", "TRUE");
+            return true;
+        } else {
+            telemetry.addData("tripLoop return:", "FALSE");
+            return false;
+
+        }
+    }
+
+    boolean tripLoopSideways() {
+        if (tripLoopDoneSide) {
+            RFPreviousValue = RFMotor.getCurrentPosition();
+            RBPreviousValue = RBMotor.getCurrentPosition();
+            LFPreviousValue = RFMotor.getCurrentPosition();
+            LBPreviousValue = RFMotor.getCurrentPosition();
+            tripLoopDoneSide = false;
+            return true;
+
+        }
+
+        return false;
+    }
+
+    boolean trip1 = false;
+    boolean trip2 = false;
+    boolean trip3 = false;
+    boolean trip4 = false;
+    boolean trip5 = false;
+    boolean trip6 = false;
+    boolean trip7 = false;
+    boolean trip8 = false;
+    boolean trip9 = false;
+    boolean trip10 = false;
+    boolean trip11 = false;
+    boolean trip12 = false;
+    boolean trip13 = false;
+    boolean trip14 = false;
+    boolean trip15 = false;
+    boolean trip16 = false;
+    boolean trip17 = false;
+    boolean trip18 = false;
+    boolean trip19 = false;
+    boolean trip20 = false;
+    boolean trip21 = false;
+    boolean trip22 = false;
+    boolean trip23 = false;
+    boolean trip24 = false;
+    boolean trip25 = false;
+    boolean trip26 = false;
+    boolean trip27 = false;
+    boolean trip28 = false;
+    boolean trip29 = false;
+    boolean trip30 = false;
+
+    public void runAuto() {
+        if (Right = true) {
+
+        }
+        if (Middle = true) {
+
+        }
+        if (Left = true) {
+
+        }
+    }
+
     @Override
     public void init() {
+        RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
+        LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
+        RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
+        LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
 
-        initVuforia();
+        RFMotor.setDirection(DcMotor.Direction.FORWARD);
+        LFMotor.setDirection(DcMotor.Direction.REVERSE);
+        RBMotor.setDirection(DcMotor.Direction.FORWARD);
+        LBMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        telemetry.addData("status", "initialized");
+
+        RFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        LFMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RFMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LBMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RBMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
         initTfod();
+        initVuforia();
 
     }
 
     @Override
     public void init_loop() {
+        telemetry.addData("LF Distance", LFMotor.getCurrentPosition());
+        telemetry.addData("RF Distance", RFMotor.getCurrentPosition());
+        telemetry.addData("LB Distance", LBMotor.getCurrentPosition());
+        telemetry.addData("RB Distance", RBMotor.getCurrentPosition());
+
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        telemetry.addData("Heading: ", angles.firstAngle);
+        telemetry.addData("Roll: ", angles.secondAngle);
+        telemetry.addData("Pitch: ", angles.thirdAngle);
+        telemetry.update();
+
         if (tfod != null) {
             tfod.activate();
             tfod.setZoom(1, 16.0 / 9.0);
+
         }
     }
 
@@ -281,13 +403,36 @@ public class FreightFrenzyAuto extends OpMode {
     public void stop() {
         if (tfod != null) {
             tfod.shutdown();
+
         }
+    }
+
+    @Override
+    public void start() {
+        t1.reset();
+        runtime.reset();
+
     }
 
     @Override
     public void loop() {
         scan();
+        runAuto();
         telemetry.update();
+
+    }
+
+    public final void idle() {
+        Thread.yield();
+    }
+
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+        }
     }
 }
 
