@@ -15,7 +15,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 @TeleOp
 public class FormulaRTeleOp extends OpMode {
 
-    //initializing and variables
     BNO055IMU imu;
     Orientation angles;
     private DcMotor RFMotor;
@@ -23,6 +22,7 @@ public class FormulaRTeleOp extends OpMode {
     private DcMotor RBMotor;
     private DcMotor LBMotor;
     private DcMotor Intake;
+    private DcMotor Flywheel;
     private Servo Arm;
 
     ElapsedTime t1 = new ElapsedTime();
@@ -38,7 +38,6 @@ public class FormulaRTeleOp extends OpMode {
 
     ArrayList<Boolean> booleanArray = new ArrayList<Boolean>();
 
-    //DriveTrain method
     public void moveDriveTrain(){
         double vertical = 0;
         double horizontal = 0;
@@ -60,7 +59,6 @@ public class FormulaRTeleOp extends OpMode {
         }
     }
 
-    // Intake method
     public void Intake(){
         if ((gamepad2.left_trigger) > 0.5 && t1.seconds() > 0.5) {
             Intake.setPower(1);
@@ -69,10 +67,8 @@ public class FormulaRTeleOp extends OpMode {
         } else if (gamepad2.left_stick_button) {
             Intake.setPower(0);
         }
-
     }
 
-    // Arm method
     public void Arm() {
         if ((gamepad2.b)) {
             Arm.setPosition(0.1);
@@ -86,14 +82,20 @@ public class FormulaRTeleOp extends OpMode {
         if ((gamepad2.y)) {
             Arm.setPosition(0.35);
         }
-
         telemetry.addData("Arm Position", Arm.getPosition());
         telemetry.update();
-
     }
 
+    private void Flywheel() {
+        if((gamepad2.dpad_left)) {
+            Flywheel.setPower(-1);
+        }else if((gamepad2.dpad_right)) {
+            Flywheel.setPower(1);
+        }else if((gamepad2.dpad_down)) {
+            Flywheel.setPower(0);
+        }
+    }
 
-    //sleep methods
     public final void idle() {
         Thread.yield();
     }
@@ -105,7 +107,6 @@ public class FormulaRTeleOp extends OpMode {
         }
     }
 
-
     @Override
     public void init() {
         RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
@@ -113,27 +114,24 @@ public class FormulaRTeleOp extends OpMode {
         LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
         Intake = hardwareMap.get(DcMotor.class, "Intake");
+        Flywheel = hardwareMap.get(DcMotor.class, "Flywheel");
         Arm = hardwareMap.get(Servo.class, "Arm");
 
         LFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         LBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
     }
 
     @Override
     public void init_loop() {
-
+        Flywheel.setTargetPosition(0);
         Arm.setPosition(0.1);
         telemetry.addData("Arm Position" , Arm.getPosition());
         telemetry.update();
-
-
     }
 
     @Override
     public void start(){
         t2.reset();
-
     }
 
     @Override
@@ -141,7 +139,7 @@ public class FormulaRTeleOp extends OpMode {
         moveDriveTrain();
         Intake();
         Arm();
+        Flywheel();
         telemetry.update();
-
     }
 }
