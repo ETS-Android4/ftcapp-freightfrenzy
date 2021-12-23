@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -33,7 +34,12 @@ public class FreightFrenzyAuto extends OpMode {
             "ASIwwWv/////AAABmR/+9d4sSkVEshzTIOkfUgAWTcQCqWQ3NeZFwrYj+HewIITQOcdzK95pLGiq3w+muSW12YMucPY4gr+LXUWae13of2pAVIwC03KapsTkznFaL5vJQvBSmir72Q0XFzO975UhES7phEj54qmV0HANvVXc9SVvzljLiSJvJt/6eDUEyqco/rUOnneZhEarLqZch8ma+TNUbWnNO4HnNu+E31xQVjR1ADGmSpln14EFvrLD22aWyGRFufLDPxMNZ0+HYMQg2rmyDK1HFxDnk6qpvtCYTjIXcLpUPXaDF5if3wIO3mDOaTk0OwdnBav9N1/bmwmYdEzjhRnTb7A8UCAnAUSxlAYIIH3WABg2FvfhQsRJ";
 
     private VuforiaLocalizer vuforia;
-    private TFObjectDetector tfod;
+    public TFObjectDetector tfod;
+
+    boolean Duck = false;
+    boolean left = false;
+    boolean right = false;
+    boolean middle = false;
 
     BNO055IMU imu;
     Orientation angles;
@@ -41,8 +47,6 @@ public class FreightFrenzyAuto extends OpMode {
     private DcMotor LFMotor;
     private DcMotor RBMotor;
     private DcMotor LBMotor;
-    private DcMotor Intake;
-    private Servo Arm;
 
     double RFPreviousValue = 0;
     double RBPreviousValue = 0;
@@ -59,7 +63,7 @@ public class FreightFrenzyAuto extends OpMode {
     double encoderSpeed(double targetPosition, double maxSpeed) {
         AverageEncoderPosition = (RFMotor.getCurrentPosition() - RFPreviousValue + LFMotor.getCurrentPosition() - LFPreviousValue + RBMotor.getCurrentPosition() - RBPreviousValue + LBMotor.getCurrentPosition() - LBPreviousValue) / 4;
         double distance = targetPosition - AverageEncoderPosition;
-        double speed = Range.clip(-distance / 500, -maxSpeed, maxSpeed); // clip the speed
+        double speed = Range.clip(-distance / 500, -maxSpeed, maxSpeed);
         return speed;
     }
 
@@ -103,6 +107,7 @@ public class FreightFrenzyAuto extends OpMode {
     double turn(double targetAngle) {
         getHeading();
         double turnAngle = targetAngle - getHeading();
+        // telemetry.addData("turnAngle", turnAngle);
         double power = Range.clip(turnAngle / 50, -0.3, 0.3);
         return power;
     }
@@ -124,7 +129,6 @@ public class FreightFrenzyAuto extends OpMode {
                 RBMotor.setPower(0);
                 LBMotor.setPower(0);
                 setForwardPower(0, 0);
-
             }
         }
     }
@@ -158,12 +162,12 @@ public class FreightFrenzyAuto extends OpMode {
         double AvgEncPos = (RFMotor.getCurrentPosition() + LFMotor.getCurrentPosition() + RBMotor.getCurrentPosition() + LBMotor.getCurrentPosition()) / 4;
         double AccelerationSlope = maxSpeed / time;
         double power = t1.seconds() * AccelerationSlope;
-        if (Math.abs(power) < Math.abs(encoderSpeed(distance, maxSpeed))) { // if acceleration is less than speed
-            setTurnPower(turn(heading), power);  //then set motor power to turn towards heading and accelerate until max speed
+        if (Math.abs(power) < Math.abs(encoderSpeed(distance, maxSpeed))) {
+            setTurnPower(turn(heading), power);
         } else {
             if (!(Math.abs(heading - getHeading()) < 15)) {
                 telemetry.addData("motor is: ", "busy");
-                setTurnPower(turn(heading), encoderSpeed(distance, maxSpeed));// otherwise keep motor power to heading and stop at the target Encoder Position
+                setTurnPower(turn(heading), encoderSpeed(distance, maxSpeed));
             } else {
                 telemetry.addData("motor is: ", "not busy");
                 RFMotor.setPower(0);
@@ -171,7 +175,6 @@ public class FreightFrenzyAuto extends OpMode {
                 RBMotor.setPower(0);
                 LBMotor.setPower(0);
                 setTurnPower(0, 0);
-
             }
         }
     }
@@ -183,31 +186,68 @@ public class FreightFrenzyAuto extends OpMode {
             driveSideways(turn(heading), power);
         } else {
             telemetry.addData("motor is: ", "busy");
-            driveSideways(turn(heading), encoderSpeedSide(distance, maxSpeed));
+            driveSideways(turn(heading), encoderSpeedSide(distance, maxSpeed));// otherwise keep motor power to heading and stop at the target Encoder Position
         }
     }
 
-    boolean Duck = false;
-    boolean Left = false;
-    boolean Right = false;
-    boolean Middle = false;
+    boolean tripLoopDone = false;
+    boolean EncoderPower;
+
+    boolean tripLoop() {
+        double AverageEncPower = (RFMotor.getPower() + LFMotor.getPower() + RBMotor.getPower() + LBMotor.getPower()) / 4;
+
+        if (AverageEncPower == 0) {
+            EncoderPower = false;
+        } else {
+            EncoderPower = true;
+        }
+        if (!tripLoopDone && EncoderPower) {
+            tripLoopDone = true;
+        }
+        if (tripLoopDone && !EncoderPower || tripLoopDoneSide) {
+            RFPreviousValue = RFMotor.getCurrentPosition();
+            RBPreviousValue = RBMotor.getCurrentPosition();
+            LFPreviousValue = RFMotor.getCurrentPosition();
+            LBPreviousValue = RFMotor.getCurrentPosition();
+            tripLoopDoneSide = false;
+            telemetry.addData("tripLoop return:", "TRUE");
+            return true;
+        } else {
+            telemetry.addData("tripLoop return:", "FALSE");
+            return false;
+        }
+    }
+
+    boolean tripLoopSideways() {
+        if (tripLoopDoneSide) {
+            RFPreviousValue = RFMotor.getCurrentPosition();
+            RBPreviousValue = RBMotor.getCurrentPosition();
+            LFPreviousValue = RFMotor.getCurrentPosition();
+            LBPreviousValue = RFMotor.getCurrentPosition();
+            tripLoopDoneSide = false;
+            return true;
+        }
+        return false;
+    }
 
     public void scan() {
+
         if (tfod != null) {
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
+
                 telemetry.addData("# Object Detected", updatedRecognitions.size());
-                if (updatedRecognitions.size() == 0) {
-                    telemetry.addData("TFOD", "No Items Detected");
-                }
+                
                 int i = 0;
                 for (Recognition recognition : updatedRecognitions) {
                     telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+
                     telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                             recognition.getLeft(), recognition.getTop());
                     telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                             recognition.getRight(), recognition.getBottom());
                     i++;
+
                     if (recognition.getLabel().equals("Duck")) {
                         Duck = true;
                         telemetry.addData("Object Detected", "Duck");
@@ -220,14 +260,19 @@ public class FreightFrenzyAuto extends OpMode {
                     if (Duck == true) {
                         if (duckPos > 500) {
                             telemetry.addData("position:", "right");
-                            Right = true;
+                            right = true;
                         } else if (duckPos < 500) {
                             telemetry.addData("position:", "middle");
-                            Middle = true;
-                        } else {
-                            Left = true;
+                            middle = true;
+                        } else{
+                            right= false;
+                            left = false;
                         }
                     }
+                }
+                if (right == false && middle == false) {
+                    telemetry.addData("position:", "left");
+                    left = true;
                 }
                 telemetry.update();
             }
@@ -242,7 +287,6 @@ public class FreightFrenzyAuto extends OpMode {
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
     }
 
     private void initTfod() {
@@ -254,51 +298,6 @@ public class FreightFrenzyAuto extends OpMode {
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-    }
-
-    boolean tripLoopDone = false;
-    boolean EncoderPower;
-
-    boolean tripLoop() {
-        double AverageEncPower = (RFMotor.getPower() + LFMotor.getPower() + RBMotor.getPower() + LBMotor.getPower()) / 4;
-
-        if (AverageEncPower == 0) {
-            EncoderPower = false;
-        } else {
-            EncoderPower = true;
-        }
-
-        if (!tripLoopDone && EncoderPower) {
-            tripLoopDone = true;
-        }
-
-        if (tripLoopDone && !EncoderPower || tripLoopDoneSide) {
-            RFPreviousValue = RFMotor.getCurrentPosition();
-            RBPreviousValue = RBMotor.getCurrentPosition();
-            LFPreviousValue = RFMotor.getCurrentPosition();
-            LBPreviousValue = RFMotor.getCurrentPosition();
-            tripLoopDoneSide = false;
-            telemetry.addData("tripLoop return:", "TRUE");
-            return true;
-        } else {
-            telemetry.addData("tripLoop return:", "FALSE");
-            return false;
-
-        }
-    }
-
-    boolean tripLoopSideways() {
-        if (tripLoopDoneSide) {
-            RFPreviousValue = RFMotor.getCurrentPosition();
-            RBPreviousValue = RBMotor.getCurrentPosition();
-            LFPreviousValue = RFMotor.getCurrentPosition();
-            LBPreviousValue = RFMotor.getCurrentPosition();
-            tripLoopDoneSide = false;
-            return true;
-
-        }
-
-        return false;
     }
 
     boolean trip1 = false;
@@ -333,14 +332,25 @@ public class FreightFrenzyAuto extends OpMode {
     boolean trip30 = false;
 
     public void runAuto() {
-        if (Right = true) {
-
-        }
-        if (Middle = true) {
-
-        }
-        if (Left = true) {
-
+        if (right = true) {
+            if (!trip1) {
+                rampUp(0,0,0,0);
+                trip1 = tripLoop();
+                telemetry.addData("trip2", trip1);
+            }
+        } else if (left = true) {
+            if (!trip2) {
+                rampUp(one * 4, 0, 0.5, 0.3);
+                trip2 = tripLoop();
+                telemetry.addData("trip 1", trip2);
+            }
+            telemetry.update();
+        } else if (middle = true) {
+            if (!trip3) {
+                rampUp(0,0,0,0);
+                trip3 = tripLoop();
+                telemetry.addData("trip2", trip3);
+            }
         }
     }
 
@@ -374,9 +384,8 @@ public class FreightFrenzyAuto extends OpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-        initTfod();
         initVuforia();
-
+        initTfod();
     }
 
     @Override
@@ -395,15 +404,6 @@ public class FreightFrenzyAuto extends OpMode {
         if (tfod != null) {
             tfod.activate();
             tfod.setZoom(1, 16.0 / 9.0);
-
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (tfod != null) {
-            tfod.shutdown();
-
         }
     }
 
@@ -411,7 +411,13 @@ public class FreightFrenzyAuto extends OpMode {
     public void start() {
         t1.reset();
         runtime.reset();
+    }
 
+    @Override
+    public void stop() {
+        if (tfod != null) {
+            tfod.shutdown();
+        }
     }
 
     @Override
@@ -419,7 +425,6 @@ public class FreightFrenzyAuto extends OpMode {
         scan();
         runAuto();
         telemetry.update();
-
     }
 
     public final void idle() {
@@ -431,8 +436,8 @@ public class FreightFrenzyAuto extends OpMode {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-
         }
     }
+
 }
 
