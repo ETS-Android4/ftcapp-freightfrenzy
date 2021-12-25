@@ -76,9 +76,9 @@ public class FreightFrenzyAuto extends OpMode {
     }
 
     public void setForwardPower(double turnPower, double power) {
-        RFMotor.setPower(-turnPower - power);
+        RFMotor.setPower(turnPower - power);
         LFMotor.setPower(turnPower - power);
-        RBMotor.setPower(-turnPower - power);
+        RBMotor.setPower(turnPower - power);
         LBMotor.setPower(turnPower - power);
         telemetry.addData("turn power", turnPower);
     }
@@ -94,8 +94,8 @@ public class FreightFrenzyAuto extends OpMode {
     private void driveSideways(double turnPower, double encoderSpeedSide) {
         RFMotor.setPower(turnPower + encoderSpeedSide);
         LFMotor.setPower(-turnPower - encoderSpeedSide);
-        RBMotor.setPower(turnPower - encoderSpeedSide);
-        LBMotor.setPower(-turnPower + encoderSpeedSide);
+        RBMotor.setPower(-turnPower - encoderSpeedSide);
+        LBMotor.setPower(turnPower + encoderSpeedSide);
     }
 
     double getHeading() {
@@ -258,25 +258,23 @@ public class FreightFrenzyAuto extends OpMode {
                     double duckPos = recognition.getRight();
 
                     if (Duck == true) {
-                        if (duckPos > 500) {
-                            telemetry.addData("position:", "right");
-                            right = true;
-                        } else if (duckPos < 500) {
-                            telemetry.addData("position:", "middle");
+                        if (duckPos < 500) {
+                            left = true;
+                            telemetry.addData("position:", "left");
+                        } else if (duckPos > 500) {
                             middle = true;
-                        } else{
-                            right= false;
+                            telemetry.addData("position:", "middle");
+                        } else {
+                            middle = false;
                             left = false;
                         }
                     }
+                    if (middle == false && left == false) {
+                        right = true;
+                        telemetry.addData("position", "right");
+                    }
                 }
-                if (right == false && middle == false) {
-                    telemetry.addData("position:", "left");
-                    left = true;
-                }
-                telemetry.update();
             }
-
         }
     }
 
@@ -331,25 +329,23 @@ public class FreightFrenzyAuto extends OpMode {
     boolean trip29 = false;
     boolean trip30 = false;
 
-    public void runAuto() {
+    public void runAuto1() {
+        if (left = true) {
+
+        }
+    }
+
+    public void runAuto2() {
+        if (middle = true) {
+
+        }
+    }
+    public void runAuto3() {
         if (right = true) {
-            if (!trip1) {
-                rampUp(0,0,0,0);
+            if(!trip1) {
+                rampUpSide(-one,0,5,0.4);
                 trip1 = tripLoop();
-                telemetry.addData("trip2", trip1);
-            }
-        } else if (left = true) {
-            if (!trip2) {
-                rampUp(one * 4, 0, 0.5, 0.3);
-                trip2 = tripLoop();
-                telemetry.addData("trip 1", trip2);
-            }
-            telemetry.update();
-        } else if (middle = true) {
-            if (!trip3) {
-                rampUp(0,0,0,0);
-                trip3 = tripLoop();
-                telemetry.addData("trip2", trip3);
+                telemetry.addData("trip1",trip1);
             }
         }
     }
@@ -361,10 +357,10 @@ public class FreightFrenzyAuto extends OpMode {
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
 
-        RFMotor.setDirection(DcMotor.Direction.FORWARD);
         LFMotor.setDirection(DcMotor.Direction.REVERSE);
-        RBMotor.setDirection(DcMotor.Direction.FORWARD);
+        RFMotor.setDirection(DcMotor.Direction.FORWARD);
         LBMotor.setDirection(DcMotor.Direction.REVERSE);
+        RBMotor.setDirection(DcMotor.Direction.FORWARD);
 
         telemetry.addData("status", "initialized");
 
@@ -423,7 +419,9 @@ public class FreightFrenzyAuto extends OpMode {
     @Override
     public void loop() {
         scan();
-        runAuto();
+        runAuto1();
+        runAuto2();
+        runAuto3();
         telemetry.update();
     }
 
