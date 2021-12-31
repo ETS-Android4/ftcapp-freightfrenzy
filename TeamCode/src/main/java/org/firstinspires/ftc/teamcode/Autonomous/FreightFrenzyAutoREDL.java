@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
 @Autonomous
-public class FreightFrenzyAuto extends OpMode {
+public class FreightFrenzyAutoREDL extends OpMode {
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
             "Ball",
@@ -343,8 +343,8 @@ public class FreightFrenzyAuto extends OpMode {
     public void runAuto3() {
         if (right = true) {
             if(!trip1) {
-                rampUpSide(-one,0,5,0.4);
-                trip1 = tripLoop();
+                rampUpSide(2*one,0,0,0.4);
+                trip1 = tripLoopSideways();
                 telemetry.addData("trip1",trip1);
             }
         }
