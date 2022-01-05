@@ -206,8 +206,8 @@ public class FreightFrenzyAutoREDR extends OpMode {
         if (tripLoopDone && !EncoderPower || tripLoopDoneSide) {
             RFPreviousValue = RFMotor.getCurrentPosition();
             RBPreviousValue = RBMotor.getCurrentPosition();
-            LFPreviousValue = RFMotor.getCurrentPosition();
-            LBPreviousValue = RFMotor.getCurrentPosition();
+            LFPreviousValue = LFMotor.getCurrentPosition();
+            LBPreviousValue = LBMotor.getCurrentPosition();
             tripLoopDoneSide = false;
             telemetry.addData("tripLoop return:", "TRUE");
             return true;
@@ -268,11 +268,12 @@ public class FreightFrenzyAutoREDR extends OpMode {
                             left = false;
                         }
                     }
-                    if (middle == false && left == false) {
-                        right = true;
-                        telemetry.addData("position", "right");
-                    }
                 }
+                if (middle == false && left == false) {
+                    right = true;
+                    telemetry.addData("position", "right");
+                }
+                telemetry.update();
             }
         }
     }
@@ -329,36 +330,36 @@ public class FreightFrenzyAutoREDR extends OpMode {
     boolean trip30 = false;
 
     public void runAuto1() {
-        if (left = true) {
+        if (left == true) {
 
         }
     }
 
     public void runAuto2() {
-        if (middle = true) {
-
-        }
-    }
-    public void runAuto3() {
-        if (right = true) {
+        if (middle == true) {
             if(!trip1) {
                 //get out da wayy of da wall so i cnat turn
-                rampUpSide(-one, 0,0,0.4);
+                rampUpSide(-one, 0,0,0.3);
                 trip1 = tripLoopSideways();
                 telemetry.addData("trip1",trip1);
             }
             //turn towards the hub
             else if(trip1 && !trip2){
-                rampUpTurn(0,135,0.5,0.1);
+                rampUpTurn(0,135,0.5,0.2);
                 trip2 = tripLoop();
                 telemetry.addData("trip2",trip2);
             }
             //go forward
             else if(trip2 && !trip3) {
-                rampUp(2 * one, 135, 0.5, 0.2);
+                rampUp(-2 * one, 135, 0.5, 0.2);
                 trip3 = tripLoop();
                 telemetry.addData("trip3", trip3);
             }
+        }
+    }
+    public void runAuto3() {
+        if (right == true) {
+
         }
     }
 
@@ -441,9 +442,9 @@ public class FreightFrenzyAutoREDR extends OpMode {
 
     @Override
     public void stop() {
-        if (tfod != null) {
-            tfod.shutdown();
-        }
+//        if (tfod != null) {
+//            tfod.shutdown();
+//        }
     }
 
     @Override

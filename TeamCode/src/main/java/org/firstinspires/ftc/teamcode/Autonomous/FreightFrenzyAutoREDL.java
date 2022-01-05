@@ -207,8 +207,8 @@ public class FreightFrenzyAutoREDL extends OpMode {
         if (tripLoopDone && !EncoderPower || tripLoopDoneSide) {
             RFPreviousValue = RFMotor.getCurrentPosition();
             RBPreviousValue = RBMotor.getCurrentPosition();
-            LFPreviousValue = RFMotor.getCurrentPosition();
-            LBPreviousValue = RFMotor.getCurrentPosition();
+            LFPreviousValue = LFMotor.getCurrentPosition();
+            LBPreviousValue = LBMotor.getCurrentPosition();
             tripLoopDoneSide = false;
             telemetry.addData("tripLoop return:", "TRUE");
             return true;
@@ -330,18 +330,18 @@ public class FreightFrenzyAutoREDL extends OpMode {
     boolean trip30 = false;
 
     public void runAuto1() {
-        if (left = true) {
+        if (left == true) {
 
         }
     }
 
     public void runAuto2() {
-        if (middle = true) {
+        if (middle == true) {
 
         }
     }
     public void runAuto3() {
-        if (right = true) {
+        if (right == true) {
             if(!trip1) {
                 rampUpSide(2*one,0,0,0.4);
                 trip1 = tripLoopSideways();

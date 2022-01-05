@@ -25,7 +25,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
-@Disabled
+
 @Autonomous
 public class TestTensorFlowAuto<tfod> extends OpMode {
 
@@ -92,21 +92,21 @@ public class TestTensorFlowAuto<tfod> extends OpMode {
                     double duckPos = recognition.getRight();
 
                     if (Duck == true) {
-                        if (duckPos > 500) {
-                            telemetry.addData("position:", "right");
-                            right = true;
-                        } else if (duckPos < 500) {
+                        if (duckPos < 500) {
+                            telemetry.addData("position:", "left");
+                            left = true;
+                        } else if (duckPos > 500) {
                             telemetry.addData("position:", "middle");
                             middle = true;
                         } else{
-                            right= false;
+                            middle = false;
                             left = false;
                         }
                     }
                 }
-                if (right == false && middle == false) {
-                    telemetry.addData("position:", "left");
-                    left = true;
+                if (left == false && middle == false) {
+                    telemetry.addData("position:", "right");
+                    right = true;
                 }
                 telemetry.update();
             }
