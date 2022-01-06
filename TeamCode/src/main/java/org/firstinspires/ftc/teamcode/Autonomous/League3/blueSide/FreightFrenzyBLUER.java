@@ -1,15 +1,13 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.Autonomous.League3.blueSide;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -21,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
 @Autonomous
-public class FreightFrenzyAutoREDL extends OpMode {
+public class FreightFrenzyBLUER extends OpMode {
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
             "Ball",
@@ -84,10 +82,10 @@ public class FreightFrenzyAutoREDL extends OpMode {
     }
 
     public void setTurnPower(double turnPower, double power) {
-        RFMotor.setPower(turnPower - power);
-        LFMotor.setPower(-turnPower - power);
-        RBMotor.setPower(turnPower - power);
-        LBMotor.setPower(-turnPower - power);
+        RFMotor.setPower(-turnPower - power);
+        LFMotor.setPower(turnPower - power);
+        RBMotor.setPower(-turnPower - power);
+        LBMotor.setPower(turnPower - power);
         telemetry.addData("turn power", turnPower);
     }
 
@@ -170,6 +168,7 @@ public class FreightFrenzyAutoREDL extends OpMode {
                 setTurnPower(turn(heading), encoderSpeed(distance, maxSpeed));
             } else {
                 telemetry.addData("motor is: ", "not busy");
+                telemetry.addData("heading:", getHeading());
                 RFMotor.setPower(0);
                 LFMotor.setPower(0);
                 RBMotor.setPower(0);
@@ -179,7 +178,7 @@ public class FreightFrenzyAutoREDL extends OpMode {
         }
     }
 
-    public void rampUpLitSide(double distance, double heading, double time, double maxSpeed) {
+    public void sahithLetsGetLitletsGoooooo(double distance, double heading, double time, double maxSpeed) {
         double AccelerationSlope = maxSpeed / time;
         double power = t1.seconds() * AccelerationSlope;
         if (Math.abs(power) < Math.abs(encoderSpeedSide(distance, maxSpeed))) {
@@ -229,7 +228,7 @@ public class FreightFrenzyAutoREDL extends OpMode {
         }
         return false;
     }
-
+    double duckPos;
     public void scan() {
 
         if (tfod != null) {
@@ -237,7 +236,7 @@ public class FreightFrenzyAutoREDL extends OpMode {
             if (updatedRecognitions != null) {
 
                 telemetry.addData("# Object Detected", updatedRecognitions.size());
-                
+
                 int i = 0;
                 for (Recognition recognition : updatedRecognitions) {
                     telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
@@ -255,7 +254,7 @@ public class FreightFrenzyAutoREDL extends OpMode {
                         Duck = false;
                         telemetry.addData("Object Detected", "None");
                     }
-                    double duckPos = recognition.getRight();
+                    duckPos = recognition.getRight();
 
                     if (Duck == true) {
                         if (duckPos < 500) {
@@ -269,11 +268,12 @@ public class FreightFrenzyAutoREDL extends OpMode {
                             left = false;
                         }
                     }
-                    if (middle == false && left == false) {
-                        right = true;
-                        telemetry.addData("position", "right");
-                    }
                 }
+                if (middle == false && left == false) {
+                    right = true;
+                    telemetry.addData("position", "right");
+                }
+                telemetry.update();
             }
         }
     }
@@ -337,18 +337,56 @@ public class FreightFrenzyAutoREDL extends OpMode {
 
     public void runAuto2() {
         if (middle == true) {
+            if(!trip1) {
+                //get out da wayy of da wall so it   can turn
+                rampUpSide(-one, 0,0,0.3);
+                trip1 = tripLoopSideways();
+                telemetry.addData("trip1",trip1);
+            }
+            //turn towards the hub
+            else if(trip1 && !trip2){
+                rampUpTurn(0,135,0.2,0.2);
+                trip2 = tripLoop();
+                telemetry.addData("trip2",trip2);
+            }
+            //go forward
+            else if(trip2 && !trip3) {
+                rampUp(-1.2 * one, 65, 0.2, 0.4);
+                trip3 = tripLoop();
+                telemetry.addData("trip3", trip3);
+            }
+            // place cube in middle
+            else if(trip3 && !trip4) {
 
+                trip4 = true;
+                telemetry.addData("trip4", trip4);
+            }
+            // turn towards the paring area
+            else if(trip4 && !trip5) {
+                rampUpTurn(0, 0, 0.2, 0.2);
+                trip5 = tripLoop();
+                telemetry.addData("trip5", trip5);
+            }
+            // align against the wall
+            else if(trip5 && !trip6) {
+                rampUp(-3.8*one, 0, 0.5, 0.5);
+                trip6 = tripLoop();
+                telemetry.addData("trip6", trip6);
+            }
+            // move sideways and park
+            else if(trip6 && !trip7) {
+                rampUpSide(-one, 0,0,0.3);
+                trip7 = tripLoopSideways();
+                telemetry.addData("trip7", trip7);
+            }
         }
     }
     public void runAuto3() {
         if (right == true) {
-            if(!trip1) {
-                rampUpSide(2*one,0,0,0.4);
-                trip1 = tripLoopSideways();
-                telemetry.addData("trip1",trip1);
-            }
+
         }
     }
+
 
     @Override
     public void init() {
@@ -401,6 +439,23 @@ public class FreightFrenzyAutoREDL extends OpMode {
             tfod.activate();
             tfod.setZoom(1, 16.0 / 9.0);
         }
+
+        if (Duck == true) {
+            if (duckPos < 500) {
+                left = true;
+                telemetry.addData("position:", "left");
+            } else if (duckPos > 500) {
+                middle = true;
+                telemetry.addData("position:", "middle");
+            } else {
+                middle = false;
+                left = false;
+            }
+        }
+        if (middle == false && left == false) {
+            right = true;
+            telemetry.addData("position", "right");
+        }
     }
 
     @Override
@@ -411,9 +466,9 @@ public class FreightFrenzyAutoREDL extends OpMode {
 
     @Override
     public void stop() {
-        if (tfod != null) {
-            tfod.shutdown();
-        }
+//        if (tfod != null) {
+//            tfod.shutdown();
+//        }
     }
 
     @Override
@@ -422,6 +477,12 @@ public class FreightFrenzyAutoREDL extends OpMode {
         runAuto1();
         runAuto2();
         runAuto3();
+
+        telemetry.addData("heading:", getHeading());
+        telemetry.addData("RFMotor encoder:", RFMotor.getCurrentPosition());
+        telemetry.addData("LFMotor encoder:", LFMotor.getCurrentPosition());
+        telemetry.addData("RBMotor encoder:", RBMotor.getCurrentPosition());
+        telemetry.addData("LBMotor encoder:", LBMotor.getCurrentPosition());
         telemetry.update();
     }
 
@@ -436,6 +497,4 @@ public class FreightFrenzyAutoREDL extends OpMode {
             Thread.currentThread().interrupt();
         }
     }
-
 }
-
