@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.League3.redSide;
+package org.firstinspires.ftc.teamcode.Autonomous.League.RedSide;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;

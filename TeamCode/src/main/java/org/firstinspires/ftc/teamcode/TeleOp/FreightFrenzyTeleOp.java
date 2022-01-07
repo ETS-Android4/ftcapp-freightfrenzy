@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp
 @Disabled
+@TeleOp
 public class FreightFrenzyTeleOp extends OpMode {
     private DcMotor RFMotor;
     private DcMotor LFMotor;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.League3.blueSide;
+package org.firstinspires.ftc.teamcode.Autonomous.League.BlueSide;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -19,7 +19,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
 @Autonomous
-public class FreightFrenzyBLUER extends OpMode {
+public class FreightFrenzyBLUEL extends OpMode {
+
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
             "Ball",
@@ -257,21 +258,21 @@ public class FreightFrenzyBLUER extends OpMode {
                     duckPos = recognition.getRight();
 
                     if (Duck == true) {
-                        if (duckPos < 500) {
-                            left = true;
-                            telemetry.addData("position:", "left");
-                        } else if (duckPos > 500) {
+                        if (duckPos > 500) {
+                            right = true;
+                            telemetry.addData("position:", "right");
+                        } else if (duckPos < 500) {
                             middle = true;
                             telemetry.addData("position:", "middle");
                         } else {
                             middle = false;
-                            left = false;
+                            right = false;
                         }
                     }
                 }
-                if (middle == false && left == false) {
-                    right = true;
-                    telemetry.addData("position", "right");
+                if (middle == false && right == false) {
+                    left = true;
+                    telemetry.addData("position", "left");
                 }
                 telemetry.update();
             }
@@ -345,7 +346,7 @@ public class FreightFrenzyBLUER extends OpMode {
             }
             //turn towards the hub
             else if(trip1 && !trip2){
-                rampUpTurn(0,135,0.2,0.2);
+                rampUpTurn(0,65,0.2,0.2);
                 trip2 = tripLoop();
                 telemetry.addData("trip2",trip2);
             }
@@ -369,16 +370,12 @@ public class FreightFrenzyBLUER extends OpMode {
             }
             // align against the wall
             else if(trip5 && !trip6) {
-                rampUp(-3.8*one, 0, 0.5, 0.5);
-                trip6 = tripLoop();
+                rampUpSide(3*one, 0, 0.5, 0.5);
+                trip6 = tripLoopSideways();
                 telemetry.addData("trip6", trip6);
             }
-            // move sideways and park
-            else if(trip6 && !trip7) {
-                rampUpSide(-one, 0,0,0.3);
-                trip7 = tripLoopSideways();
-                telemetry.addData("trip7", trip7);
-            }
+            // move forward and park
+
         }
     }
     public void runAuto3() {
@@ -497,4 +494,5 @@ public class FreightFrenzyBLUER extends OpMode {
             Thread.currentThread().interrupt();
         }
     }
+
 }

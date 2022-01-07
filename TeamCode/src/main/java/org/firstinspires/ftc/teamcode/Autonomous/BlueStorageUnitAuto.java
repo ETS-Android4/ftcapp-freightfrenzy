@@ -1,20 +1,21 @@
-package org.firstinspires.ftc.teamcode.Extras;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+        import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
+        import com.qualcomm.robotcore.hardware.DcMotor;
+        import com.qualcomm.robotcore.util.ElapsedTime;
+        import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+        import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+        import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+        import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+        import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+@Disabled
 @Autonomous
-public class testDriveTrain extends OpMode {
+public class BlueStorageUnitAuto extends OpMode {
 
     // initializing the IMU
     BNO055IMU imu;
@@ -57,7 +58,7 @@ public class testDriveTrain extends OpMode {
         double avgEncPosition = (-(LFMotor.getCurrentPosition() - LFPreviousValue) - (RBMotor.getCurrentPosition() - RBPreviousValue) + (RFMotor.getCurrentPosition() - RFPreviousValue) + (LBMotor.getCurrentPosition() - LBPreviousValue)) / 4;
         double distance = targetPosition - avgEncPosition;
         telemetry.addData("difference", distance);
-        double power = Range.clip(  distance / 500, -maxSpeed, maxSpeed);
+        double power = Range.clip(distance / 500, -maxSpeed, maxSpeed);
         return power;
     }
 
@@ -94,7 +95,7 @@ public class testDriveTrain extends OpMode {
     }
 
     public void rampUp(double distance, double heading, double time, double maxSpeed) {
-        double AvgEncPos = (RFMotor.getCurrentPosition() - RFPreviousValue + (-LFMotor.getCurrentPosition()) - LFPreviousValue + RBMotor.getCurrentPosition() - RBPreviousValue + LBMotor.getCurrentPosition() - LBPreviousValue) / 4;
+        double AvgEncPos = (RFMotor.getCurrentPosition() - RFPreviousValue + LFMotor.getCurrentPosition() - LFPreviousValue + RBMotor.getCurrentPosition() - RBPreviousValue + LBMotor.getCurrentPosition() - LBPreviousValue) / 4;
         double AccelerationSlope = maxSpeed / time;
         double power = t1.seconds() * AccelerationSlope;
         if (Math.abs(power) < Math.abs(encoderSpeed(distance, maxSpeed))) { // if acceleration is less than speed
@@ -117,6 +118,7 @@ public class testDriveTrain extends OpMode {
     }
 
     boolean tripLoopDoneSide = false;
+
     private void rampUpSide(double distance, double heading, double time, double maxSpeed) {
         double AvgEncPos = (-(LFMotor.getCurrentPosition() - LFPreviousValue) - (RBMotor.getCurrentPosition() - RBPreviousValue) + (RFMotor.getCurrentPosition() - RFPreviousValue) + (LBMotor.getCurrentPosition() - LBPreviousValue)) / 4;
         telemetry.addData("Average Encoder Posistion Sideways: ", AvgEncPos);
@@ -141,7 +143,7 @@ public class testDriveTrain extends OpMode {
     }
 
     public void rampUpTurn(double distance, double heading, double time, double maxSpeed) {
-        double AvgEncPos = (RFMotor.getCurrentPosition() + (-LFMotor.getCurrentPosition()) + RBMotor.getCurrentPosition() + LBMotor.getCurrentPosition()) / 4;
+        double AvgEncPos = (RFMotor.getCurrentPosition() + LFMotor.getCurrentPosition() + RBMotor.getCurrentPosition() + LBMotor.getCurrentPosition()) / 4;
         double AccelerationSlope = maxSpeed / time;
         double power = t1.seconds() * AccelerationSlope;
         if (Math.abs(power) < Math.abs(encoderSpeed(distance, maxSpeed))) { // if acceleration is less than speed
@@ -157,11 +159,78 @@ public class testDriveTrain extends OpMode {
                 RBMotor.setPower(0);
                 LBMotor.setPower(0);
                 setTurnPower(0, 0);
-
             }
         }
     }
 
+    // Trip Loops -----------------------------------------------------------------------------------------------------------
+    boolean tripLoopDone = false;
+    boolean EncoderPower;
+
+    boolean tripLoop() {
+        double AverageEncPower = (RFMotor.getPower() + LFMotor.getPower() + RBMotor.getPower() + LBMotor.getPower()) / 4;
+
+        if (AverageEncPower == 0) {
+            EncoderPower = false;
+        } else {
+            EncoderPower = true;
+        }
+
+        if (!tripLoopDone && EncoderPower) {
+            tripLoopDone = true;
+        }
+
+        if (tripLoopDone && !EncoderPower) {
+            RFPreviousValue = RFMotor.getCurrentPosition();
+            RBPreviousValue = RBMotor.getCurrentPosition();
+            LFPreviousValue = RFMotor.getCurrentPosition();
+            LBPreviousValue = RFMotor.getCurrentPosition();
+            return true;
+        } else {
+            telemetry.addData("tripLoop return:", "FALSE");
+            return false;
+
+        }
+    }
+
+    boolean tripLoopSideways() {
+        if (tripLoopDoneSide) {
+            tripLoopDoneSide = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    // THIS IS WHERE THE PROGRAM STARTS---------------------------------------------------------------------------------------------------------------------------------------------------------------------/
+    boolean trip1 = false;
+    boolean trip2 = false;
+    boolean trip3 = false;
+    boolean trip4 = false;
+    boolean trip5 = false;
+    boolean trip6 = false;
+    boolean trip7 = false;
+    boolean trip8 = false;
+    boolean trip9 = false;
+    boolean trip10 = false;
+    boolean trip11 = false;
+    boolean trip12 = false;
+    boolean trip13 = false;
+    boolean trip14 = false;
+    boolean trip15 = false;
+    boolean trip16 = false;
+    boolean trip17 = false;
+    boolean trip18 = false;
+    boolean trip19 = false;
+    boolean trip20 = false;
+    boolean trip21 = false;
+    boolean trip22 = false;
+    boolean trip23 = false;
+    boolean trip24 = false;
+    boolean trip25 = false;
+    boolean trip26 = false;
+    boolean trip27 = false;
+    boolean trip28 = false;
 
     @Override
     public void init() {
@@ -175,7 +244,7 @@ public class testDriveTrain extends OpMode {
 
         LFMotor.setDirection(DcMotor.Direction.REVERSE);
         RFMotor.setDirection(DcMotor.Direction.FORWARD);
-        LBMotor.setDirection(DcMotor.Direction.FORWARD);
+        LBMotor.setDirection(DcMotor.Direction.REVERSE);
         RBMotor.setDirection(DcMotor.Direction.FORWARD);
 
         telemetry.addData("Status", "Initialized");
@@ -192,7 +261,7 @@ public class testDriveTrain extends OpMode {
         // Gyro stuff
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.loggingEnabled=false;
+        parameters.loggingEnabled = false;
         imu.initialize(parameters);
     }
 
@@ -214,8 +283,26 @@ public class testDriveTrain extends OpMode {
 
     @Override
     public void loop() {
+        //moves right towards the wall
+        if (!trip1) {
+            rampUpTurn(0, 90, 0.5, 0.5);
+            trip1 = tripLoopSideways();
+            telemetry.addData("trip 1", trip1);
+        }  else if(trip1 && !trip2) {
+            rampUp(one*2,0,0.5,0.3);
+            trip2 = tripLoop();
+            telemetry.addData("trip", "2");
+        }else if(trip2 && !trip3) {
+            rampUpTurn(0,0,0.5,0.3);
+            trip3 = tripLoop();
+            telemetry.addData("trip", "3");
+        }else if(trip3 && !trip4) {
+            rampUp(one*1.5,0,0.5,0.3);
+            trip4 = tripLoop();
+            telemetry.addData("trip", "4");
+        }
 
-        rampUpTurn(0,90, 0.5, 0.3);
+
         telemetry.addData("Heading", getHeading());
         telemetry.addData("LF Distance", LFMotor.getCurrentPosition());
         telemetry.addData("RF Distance", RFMotor.getCurrentPosition());
@@ -223,3 +310,4 @@ public class testDriveTrain extends OpMode {
         telemetry.addData("RB Distance", RBMotor.getCurrentPosition());
     }
 }
+
