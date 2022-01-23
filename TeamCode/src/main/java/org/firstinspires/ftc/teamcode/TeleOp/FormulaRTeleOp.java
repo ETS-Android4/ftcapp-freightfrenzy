@@ -24,6 +24,7 @@ public class FormulaRTeleOp extends OpMode {
     private DcMotor Intake;
     private DcMotor Flywheel;
     private Servo Arm;
+    private Servo ArmR;
 
     ElapsedTime t1 = new ElapsedTime();
     ElapsedTime t2 = new ElapsedTime();
@@ -72,17 +73,23 @@ public class FormulaRTeleOp extends OpMode {
     public void Arm() {
         if ((gamepad2.b)) {
             Arm.setPosition(0.1);
+            ArmR.setPosition(0.905);
         }
-        if ((gamepad2.a)) {
+        else if ((gamepad2.a)) {
             Arm.setPosition(0.9);
+            ArmR.setPosition(0.11);
         }
-        if ((gamepad2.x)) {
+        else if ((gamepad2.x)) {
             Arm.setPosition(0.7);
+            ArmR.setPosition(0.34);
         }
-        if ((gamepad2.y)) {
+        else if ((gamepad2.y)) {
             Arm.setPosition(0.35);
+            ArmR.setPosition(0.7);
         }
+
         telemetry.addData("Arm Position", Arm.getPosition());
+        telemetry.addData("ArmR Position", ArmR .getPosition());
         telemetry.update();
     }
 
@@ -116,6 +123,8 @@ public class FormulaRTeleOp extends OpMode {
         Intake = hardwareMap.get(DcMotor.class, "Intake");
         Flywheel = hardwareMap.get(DcMotor.class, "Flywheel");
         Arm = hardwareMap.get(Servo.class, "Arm");
+        ArmR = hardwareMap.get(Servo.class, "ArmR");
+
 
         LFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         LBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -125,6 +134,7 @@ public class FormulaRTeleOp extends OpMode {
     public void init_loop() {
         Flywheel.setTargetPosition(0);
         Arm.setPosition(0.1);
+        Arm.setPosition(0.9);
         telemetry.addData("Arm Position" , Arm.getPosition());
         telemetry.update();
     }
