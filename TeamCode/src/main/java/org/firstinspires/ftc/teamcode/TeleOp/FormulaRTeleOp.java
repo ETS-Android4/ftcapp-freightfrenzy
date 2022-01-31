@@ -25,6 +25,7 @@ public class FormulaRTeleOp extends OpMode {
     private DcMotor Flywheel;
     private Servo Arm;
     private Servo ArmR;
+    private Servo Clamp;
 
     ElapsedTime t1 = new ElapsedTime();
     ElapsedTime t2 = new ElapsedTime();
@@ -45,7 +46,7 @@ public class FormulaRTeleOp extends OpMode {
         double pivot = 0;
         vertical = gamepad1.left_stick_y;
         horizontal = gamepad1.left_stick_x;
-        pivot = gamepad1.right_stick_x;
+        pivot = -gamepad1.right_stick_x;
 
         if (gamepad1.left_bumper) {
             RFMotor.setPower(0.4 * (pivot + (vertical + horizontal)));
@@ -63,7 +64,7 @@ public class FormulaRTeleOp extends OpMode {
     public void Intake(){
         if ((gamepad2.left_trigger) > 0.5 && t1.seconds() > 0.5) {
             Intake.setPower(1);
-        } else if((gamepad2.right_stick_button)) {
+        } else if((gamepad2.right_trigger) > 0.5 && t1.seconds() > 0.5) {
             Intake.setPower(-1);
         } else if (gamepad2.left_stick_button) {
             Intake.setPower(0);
@@ -72,20 +73,20 @@ public class FormulaRTeleOp extends OpMode {
 
     public void Arm() {
         if ((gamepad2.b)) {
-            Arm.setPosition(0.1);
-            ArmR.setPosition(0.905);
+            Arm.setPosition(0.11);
+            ArmR.setPosition(0.9032);
         }
+//        else if ((gamepad2.y)) {
+//            Arm.setPosition(0.35);
+//            ArmR.setPosition(0.5);
+//        }
+//        else if ((gamepad2.x)) {
+//            Arm.setPosition(0.7);
+//            ArmR.setPosition(0.35);
+//        }
         else if ((gamepad2.a)) {
-            Arm.setPosition(0.9);
+            Arm.setPosition(0.9032);
             ArmR.setPosition(0.11);
-        }
-        else if ((gamepad2.x)) {
-            Arm.setPosition(0.7);
-            ArmR.setPosition(0.34);
-        }
-        else if ((gamepad2.y)) {
-            Arm.setPosition(0.35);
-            ArmR.setPosition(0.7);
         }
 
         telemetry.addData("Arm Position", Arm.getPosition());
@@ -100,6 +101,14 @@ public class FormulaRTeleOp extends OpMode {
             Flywheel.setPower(1);
         }else if((gamepad2.dpad_down)) {
             Flywheel.setPower(0);
+        }
+    }
+
+    private void clamp(){
+        if (gamepad2.right_bumper){
+            Clamp.setPosition(0.11);
+        }else{
+            Clamp.setPosition(0.65);
         }
     }
 
@@ -124,17 +133,18 @@ public class FormulaRTeleOp extends OpMode {
         Flywheel = hardwareMap.get(DcMotor.class, "Flywheel");
         Arm = hardwareMap.get(Servo.class, "Arm");
         ArmR = hardwareMap.get(Servo.class, "ArmR");
+        Clamp = hardwareMap.get(Servo.class, "Clamp");
 
 
-        LFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        LBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        RFMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        RBMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     @Override
     public void init_loop() {
         Flywheel.setTargetPosition(0);
-        Arm.setPosition(0.1);
-        Arm.setPosition(0.9);
+        Arm.setPosition(0.11);
+        ArmR.setPosition(0.9);
         telemetry.addData("Arm Position" , Arm.getPosition());
         telemetry.update();
     }
@@ -150,6 +160,7 @@ public class FormulaRTeleOp extends OpMode {
         Intake();
         Arm();
         Flywheel();
+        clamp();
         telemetry.update();
     }
 }

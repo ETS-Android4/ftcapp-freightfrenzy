@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Disabled
+//@Disabled
 @Autonomous
 public class TestDriveTrain extends OpMode {
 
@@ -51,7 +51,7 @@ public class TestDriveTrain extends OpMode {
         double AverageEncoderPosition = (RFMotor.getCurrentPosition() - RFPreviousValue + LFMotor.getCurrentPosition() - LFPreviousValue + RBMotor.getCurrentPosition() - RBPreviousValue + LBMotor.getCurrentPosition() - LBPreviousValue) / 4;
         double distance = targetPosition - AverageEncoderPosition;
         //telemetry.addData("Encoder Speed distance",distance);
-        double speed = Range.clip(-distance / 500, -maxSpeed, maxSpeed); // clip the speed
+        double speed = Range.clip(distance / 500, -maxSpeed, maxSpeed); // clip the speed
         return speed;
     }
 
@@ -59,11 +59,19 @@ public class TestDriveTrain extends OpMode {
         double avgEncPosition = (-(LFMotor.getCurrentPosition() - LFPreviousValue) - (RBMotor.getCurrentPosition() - RBPreviousValue) + (RFMotor.getCurrentPosition() - RFPreviousValue) + (LBMotor.getCurrentPosition() - LBPreviousValue)) / 4;
         double distance = targetPosition - avgEncPosition;
         telemetry.addData("difference", distance);
-        double power = Range.clip(  distance / 500, -maxSpeed, maxSpeed);
+        double power = Range.clip(  -distance / 500, -maxSpeed, maxSpeed);
         return power;
     }
 
     public void setForwardPower(double turnPower, double power) {
+        RFMotor.setPower(turnPower - power);
+        LFMotor.setPower(turnPower - power);
+        RBMotor.setPower(turnPower - power);
+        LBMotor.setPower(turnPower - power);
+        telemetry.addData("forward power", turnPower);
+    }
+
+    public void setTurnPower(double turnPower, double power) {
         RFMotor.setPower(-turnPower - power);
         LFMotor.setPower(turnPower - power);
         RBMotor.setPower(-turnPower - power);
@@ -71,20 +79,11 @@ public class TestDriveTrain extends OpMode {
         telemetry.addData("turn power", turnPower);
     }
 
-    public void setTurnPower(double turnPower, double power) {
-        RFMotor.setPower(turnPower - power);
-        LFMotor.setPower(-turnPower - power);
-        RBMotor.setPower(turnPower - power);
-        LBMotor.setPower(-turnPower - power);
-        telemetry.addData("turn power", turnPower);
-    }
-
     private void driveSideways(double turnPower, double encoderSpeedSide) {
         RFMotor.setPower(turnPower + encoderSpeedSide);
         LFMotor.setPower(-turnPower - encoderSpeedSide);
-        RBMotor.setPower(turnPower - encoderSpeedSide);
-        LBMotor.setPower(-turnPower + encoderSpeedSide);
-
+        RBMotor.setPower(-turnPower - encoderSpeedSide);
+        LBMotor.setPower(turnPower + encoderSpeedSide);
     }
 
     double turn(double targetAngle) {
@@ -177,7 +176,7 @@ public class TestDriveTrain extends OpMode {
 
         LFMotor.setDirection(DcMotor.Direction.REVERSE);
         RFMotor.setDirection(DcMotor.Direction.FORWARD);
-        LBMotor.setDirection(DcMotor.Direction.FORWARD);
+        LBMotor.setDirection(DcMotor.Direction.REVERSE);
         RBMotor.setDirection(DcMotor.Direction.FORWARD);
 
         telemetry.addData("Status", "Initialized");
@@ -217,7 +216,8 @@ public class TestDriveTrain extends OpMode {
     @Override
     public void loop() {
 
-        rampUpTurn(0,90, 0.5, 0.3);
+        rampUpSide(-one, 0,0, 0.3);
+
         telemetry.addData("Heading", getHeading());
         telemetry.addData("LF Distance", LFMotor.getCurrentPosition());
         telemetry.addData("RF Distance", RFMotor.getCurrentPosition());
