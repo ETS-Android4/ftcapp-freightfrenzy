@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -45,6 +46,8 @@ public class FreightFrenzyAutoREDR extends OpMode {
     private DcMotor LFMotor;
     private DcMotor RBMotor;
     private DcMotor LBMotor;
+    private Servo Arm;
+    private Servo ArmR;
 
     double RFPreviousValue = 0;
     double RBPreviousValue = 0;
@@ -339,7 +342,9 @@ public class FreightFrenzyAutoREDR extends OpMode {
         if (middle == true) {
             if(!trip1) {
                 //get out da wayy of da wall so i cnat turn
-                rampUpSide(-one, 0,0,0.3);
+                rampUpSide(one, 0,0,0.3);
+//                Arm.setPosition(0.9032);
+//                ArmR.setPosition(0.11);
                 trip1 = tripLoopSideways();
                 telemetry.addData("trip1",trip1);
             }
@@ -351,13 +356,16 @@ public class FreightFrenzyAutoREDR extends OpMode {
             }
             //go forward
             else if(trip2 && !trip3) {
-                rampUp(-1.5 * one, 135, 0.2, 0.35);
+                rampUp(1.5 * one, 135, 0.2, 0.35);
                 trip3 = tripLoop();
                 telemetry.addData("trip3", trip3);
             }
             // place cube in middle
             else if(trip3 && !trip4) {
-
+              for (int i = 0; i < 1; i++){
+                  Arm.setPosition(0.0932);
+                  ArmR.setPosition(0.22);
+                }
                 trip4 = true;
                 telemetry.addData("trip4", trip4);
             }
@@ -369,13 +377,13 @@ public class FreightFrenzyAutoREDR extends OpMode {
             }
             // align against the wall
             else if(trip5 && !trip6) {
-                rampUpSide(3*one, 0, 0, 0.5);
+                rampUpSide(-2.7*one, 0, 0, 0.5);
                 trip6 = tripLoopSideways();
                 telemetry.addData("trip6", trip6);
             }
             // move forward and park
             else if(trip6 && !trip7) {
-                rampUp(-5*one, 0, 0.2, 0.5);
+                rampUp(5*one, 0, 0.2, 0.5);
                 trip7 = tripLoop();
                 telemetry.addData("trip7", trip7);
             }
@@ -394,6 +402,8 @@ public class FreightFrenzyAutoREDR extends OpMode {
         LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
+        Arm = hardwareMap.get(Servo.class, "Arm");
+        ArmR = hardwareMap.get(Servo.class, "ArmR");
 
         LFMotor.setDirection(DcMotor.Direction.REVERSE);
         RFMotor.setDirection(DcMotor.Direction.FORWARD);

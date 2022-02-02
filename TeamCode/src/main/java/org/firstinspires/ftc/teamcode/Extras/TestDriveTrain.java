@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -27,6 +28,8 @@ public class TestDriveTrain extends OpMode {
     private DcMotor LFMotor;
     private DcMotor RBMotor;
     private DcMotor LBMotor;
+    private Servo Arm;
+    private Servo ArmR;
 
     double RFPreviousValue = 0;
     double RBPreviousValue = 0;
@@ -172,6 +175,8 @@ public class TestDriveTrain extends OpMode {
         RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
         LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
         RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
+        Arm = hardwareMap.get(Servo.class, "Arm");
+        ArmR = hardwareMap.get(Servo.class, "ArmR");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         LFMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -215,8 +220,10 @@ public class TestDriveTrain extends OpMode {
 
     @Override
     public void loop() {
-
-        rampUpSide(-one, 0,0, 0.3);
+        if(Arm.getPosition() != 0.9032) {
+            Arm.setPosition(0.9032);
+            ArmR.setPosition(0.11);
+        }
 
         telemetry.addData("Heading", getHeading());
         telemetry.addData("LF Distance", LFMotor.getCurrentPosition());
