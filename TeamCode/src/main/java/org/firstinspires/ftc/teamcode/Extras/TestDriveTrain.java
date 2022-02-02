@@ -220,10 +220,8 @@ public class TestDriveTrain extends OpMode {
 
     @Override
     public void loop() {
-        if(Arm.getPosition() != 0.9032) {
-            Arm.setPosition(0.9032);
-            ArmR.setPosition(0.11);
-        }
+        Arm.setPosition(0.9032);
+        ArmR.setPosition(0.11);
 
         telemetry.addData("Heading", getHeading());
         telemetry.addData("LF Distance", LFMotor.getCurrentPosition());
